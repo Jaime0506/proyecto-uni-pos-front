@@ -1,11 +1,9 @@
 <script setup lang="ts">
-const message = "Hello World";
+const message = "soy register";
 </script>
 
 <template>
     <div>
-        <NuxtRouteAnnouncer />
-        <NuxtPage />
         <p>{{ message }}</p>
     </div>
 </template>

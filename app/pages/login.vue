@@ -1,3 +1,55 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import BaseInput from '~/components/auth/login/BaseInput.vue'
+
+const form = ref({
+    userName: '',
+    password: ''
+})
+
+const alertMessage = ref<string | null>(null)
+const alertType = ref<'success' | 'error' | null>(null)
+const isLoading = ref(false)
+
+const isFormComplete = computed(() => {
+    return form.value.userName.trim() !== '' && form.value.password.trim() !== ''
+})
+
+const handleLogin = async () => {
+    if (!isFormComplete.value) {
+        alertMessage.value = '⚠️ Debes llenar todos los campos'
+        alertType.value = 'error'
+        return
+    }
+
+    try {
+        isLoading.value = true
+        const response = await $fetch('http://localhost:3001/api/v1/auth/login', {
+            method: 'POST',
+            body: {
+                userName: form.value.userName,
+                password: form.value.password,
+                deviceId: "string",
+                companyId: 1
+            },
+        })
+
+        alertMessage.value = '✅ Inicio de sesión exitoso'
+        alertType.value = 'success'
+        console.log('✅ Login:', response)
+
+        // aquí podrías guardar el token en localStorage o en pinia
+        // localStorage.setItem('token', response.access_token)
+    } catch (error: any) {
+        alertMessage.value = error?.data?.message || '❌ Credenciales incorrectas'
+        alertType.value = 'error'
+        console.error('❌ Error en login:', error?.data || error)
+    } finally {
+        isLoading.value = false
+    }
+}
+</script>
+
 <template>
     <div
         class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
@@ -8,46 +60,44 @@
                     <p class="text-slate-600">Ingresa tus credenciales para continuar</p>
                 </div>
 
-                <form class="space-y-6">
-                    <div>
-                        <label htmlFor="username" class="block text-sm font-medium text-slate-700 mb-2">
-                            Usuario
-                        </label>
-                        <input type="text" id="username" name="username"
-                            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-slate-900 placeholder:text-slate-400"
-                            placeholder="Ingresa tu usuario" required />
-                    </div>
+                <!-- ALERTA -->
+                <div v-if="alertMessage" class="mb-4">
+                    <p :class="[
+                        'text-sm font-semibold p-2 rounded-md',
+                        alertType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    ]">
+                        {{ alertMessage }}
+                    </p>
+                </div>
 
-                    <div>
-                        <label htmlFor="password" class="block text-sm font-medium text-slate-700 mb-2">
-                            Contraseña
-                        </label>
-                        <input type="password" id="password" name="password"
-                            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-slate-900 placeholder:text-slate-400"
-                            placeholder="Ingresa tu contraseña" required />
-                    </div>
+                <form @submit.prevent="handleLogin" class="space-y-6">
+                    <BaseInput id="userName" name="userName" label="Usuario" placeholder="Ingresa tu usuario"
+                        v-model="form.userName" required />
 
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-slate-600">Recordarme</span>
-                        </label>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
+                    <BaseInput id="password" name="password" type="password" label="Contraseña"
+                        placeholder="Ingresa tu contraseña" v-model="form.password" required />
 
-                    <button type="submit"
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
-                        Iniciar Sesión
+                    <!-- LOADING BUTTON -->
+                    <button type="submit" :disabled="!isFormComplete || isLoading"
+                        class="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span v-if="isLoading" class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                                </path>
+                            </svg>
+                            Iniciando...
+                        </span>
+                        <span v-else>Iniciar Sesión</span>
                     </button>
                 </form>
 
                 <div class="mt-6 text-center">
                     <p class="text-slate-600">
                         ¿No tienes una cuenta?
-                        <NuxtLink href="/register" class="text-blue-600 hover:text-blue-700 font-semibold">
+                        <NuxtLink to="/register" class="text-blue-600 hover:text-blue-700 font-semibold">
                             Regístrate aquí
                         </NuxtLink>
                     </p>

@@ -1,3 +1,18 @@
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+
+const form = ref({
+    username: '',
+    email: '',
+    password: ''
+})
+
+const handleChange = (e: Event) => {
+    const target = e.target as HTMLInputElement
+    form.value[target.name as keyof typeof form.value] = target.value
+}
+</script>
+
 <template>
     <div
         class="h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 overflow-hidden">
@@ -8,7 +23,7 @@
                     <p class="text-sm text-slate-600">Completa el formulario para registrarte</p>
                 </div>
 
-                <form class="space-y-4">
+                <div class="space-y-4">
                     <div>
                         <label htmlFor="username" class="block text-sm font-medium text-slate-700 mb-1">
                             Nombre de Usuario
@@ -50,7 +65,7 @@
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
                         Crear Cuenta
                     </button>
-                </form>
+                </div>
 
                 <div class="mt-4 text-center">
                     <p class="text-sm text-slate-600">

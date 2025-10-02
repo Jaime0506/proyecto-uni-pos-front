@@ -1,6 +1,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseInput from '~/components/auth/login/BaseInput.vue'
+
+definePageMeta({
+    layout: false
+})
+
+interface User {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    username: string
+    isSuperRoot: boolean
+}
+
+interface LoginResponse {
+    accessToken: string
+    refreshToken: string
+    expiresAt: string
+    user: User
+}
 
 const form = ref({
     userName: '',
@@ -15,6 +36,8 @@ const isFormComplete = computed(() => {
     return form.value.userName.trim() !== '' && form.value.password.trim() !== ''
 })
 
+const router = useRouter()
+
 const handleLogin = async () => {
     if (!isFormComplete.value) {
         alertMessage.value = '⚠️ Debes llenar todos los campos'
@@ -24,7 +47,7 @@ const handleLogin = async () => {
 
     try {
         isLoading.value = true
-        const response = await $fetch('http://localhost:3001/api/v1/auth/login', {
+        const response = await $fetch<LoginResponse>('http://localhost:3001/api/v1/auth/login', {
             method: 'POST',
             body: {
                 userName: form.value.userName,
@@ -34,9 +57,17 @@ const handleLogin = async () => {
             },
         })
 
+        localStorage.setItem('accessToken', response.accessToken)
+        localStorage.setItem('refreshToken', response.refreshToken)
+        localStorage.setItem('expiresAt', response.expiresAt)
+
         alertMessage.value = '✅ Inicio de sesión exitoso'
         alertType.value = 'success'
         console.log('✅ Login:', response)
+
+        setTimeout(() => {
+            router.push('/dashboard') // cambia '/dashboard' a la ruta que quieras
+        }, 1000)
 
         // aquí podrías guardar el token en localStorage o en pinia
         // localStorage.setItem('token', response.access_token)
@@ -97,7 +128,7 @@ const handleLogin = async () => {
                 <div class="mt-6 text-center">
                     <p class="text-slate-600">
                         ¿No tienes una cuenta?
-                        <NuxtLink to="/register" class="text-blue-600 hover:text-blue-700 font-semibold">
+                        <NuxtLink to="/auth/register" class="text-blue-600 hover:text-blue-700 font-semibold">
                             Regístrate aquí
                         </NuxtLink>
                     </p>

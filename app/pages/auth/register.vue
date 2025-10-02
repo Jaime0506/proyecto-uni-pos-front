@@ -3,6 +3,10 @@ import { ref, computed } from 'vue'
 import BaseInput from '~/components/auth/register/BaseInput.vue'
 import { createUserName } from '~/utils/createUserName'
 
+definePageMeta({
+  layout: false
+})
+
 const form = ref({
   firstName: '',
   lastName: '',
@@ -141,7 +145,7 @@ const handleSubmit = async () => {
         <div class="mt-4 text-center">
           <p class="text-sm text-slate-600">
             ¿Ya tienes una cuenta?
-            <NuxtLink to="/login" class="text-blue-600 hover:text-blue-700 font-semibold">
+            <NuxtLink to="/auth/login" class="text-blue-600 hover:text-blue-700 font-semibold">
               Inicia sesión
             </NuxtLink>
           </p>

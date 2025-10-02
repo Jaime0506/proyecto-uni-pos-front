@@ -65,7 +65,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="min-h-screen p-6 flex items-center justify-center">
+    <div class="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
         <!-- Loading -->
         <div v-if="isLoading" class="flex flex-col items-center gap-2">
             <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"

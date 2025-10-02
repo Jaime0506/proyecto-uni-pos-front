@@ -66,7 +66,7 @@ const handleLogin = async () => {
         console.log('✅ Login:', response)
 
         setTimeout(() => {
-            router.push('/dashboard') // cambia '/dashboard' a la ruta que quieras
+            router.push('/products') // cambia '/dashboard' a la ruta que quieras
         }, 1000)
 
         // aquí podrías guardar el token en localStorage o en pinia
